@@ -1,12 +1,14 @@
 ## Resolved Issues ##
 
 - **[1]** Need a Start Menu
+- **[2]** Need to make the start menu transition to different states
+- **[3]** Need Actor class that can render actors
 
 ## Open Issues ##
 
-- **[2]** Need to make the start menu transition to different states
-- **[3]** Need to make buttons animated when selected
-- **[4]** Need to make Start Menu prettier
-- **[5]** Need a basic, playable game
-- **[6]** Need at least one map
-- **[7]** Need player and enemies
+
+- **[4]** Need to make buttons animated when selected
+- **[5]** Need to make Start Menu prettier
+- **[6]** Need a basic, playable game
+- **[7]** Need at least one map
+- **[8]** Need player and enemies

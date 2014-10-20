@@ -33,12 +33,15 @@ public class RogueGame extends StateBasedGame{
 	
 	public final int ScreenWidth;
 	public final int ScreenHeight;
+	public static final int TILE_SIZE = 16; //DawnLike uses 16x16 tiles. This will mainly help readability.
 	
 	//public final UnicodeFont alagardFont = new UnicodeFont(
 	//		new java.awt.Font("Alagard", Font.BOLD, 20));
 	
 	public static final String GOLDGUI_IMG_RSC = "rogueproject/resource/goldui_big_pieces_0.png"; 
 	public static final String GUI_MENULARGE_IMG_RSC = "rogueproject/resource/menu_large.png";
+	public static final String ACTOR_PLAYER0_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player0.png";
+	public static final String ACTOR_PLAYER1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player1.png";
 	
 	public RogueGame(String title, int width, int height) {
 		super(title);
@@ -60,6 +63,8 @@ public class RogueGame extends StateBasedGame{
 		// sounds: ResourceManager.loadSound(SND_RSC);
 		ResourceManager.loadImage(GOLDGUI_IMG_RSC);
 		ResourceManager.loadImage(GUI_MENULARGE_IMG_RSC);
+		ResourceManager.loadImage(ACTOR_PLAYER0_IMG_RSC);
+		ResourceManager.loadImage(ACTOR_PLAYER1_IMG_RSC);
 	}
 	
 	public static void main(String[] args) {
