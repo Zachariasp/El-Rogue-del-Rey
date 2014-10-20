@@ -53,7 +53,7 @@ public class RogueGame extends StateBasedGame{
 	public void initStatesList(GameContainer container) throws SlickException {
 		addState(new StartUpState());
 		//addState(new GameOverState());
-		//addState(new PlayingState());
+		addState(new PlayingState());
 		
 		// preload resources here
 		// images: ResourceManager.loadImage(IMG_RSC);

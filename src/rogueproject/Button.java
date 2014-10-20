@@ -2,8 +2,9 @@ package rogueproject;
 
 import jig.Entity;
 import jig.ResourceManager;
-import org.newdawn.slick.SlickException;
 
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.UnicodeFont;
@@ -24,12 +25,26 @@ public class Button extends Entity {
 	public static final int MENU_LARGE = 0;
 	
 	private java.lang.String text;
+	private int textSize;
 	private float width;
 	private float height;
 	private int style;
 	
+	private Animation select; // Perhaps we will use this to animate the buttons... Maybe.
 	
 	/* Constructor */
+	
+	public Button(java.lang.String string, float x, float y, int bstyle, int tsize)
+			throws SlickException{
+		super(x, y);
+		text = string;
+		textSize = tsize;
+		style = bstyle;	
+		getStyleImage();
+		
+	}
+	
+	/*
 	public Button(java.lang.String string, float x, float y, int bstyle)
 			throws SlickException{
 		super(x, y);
@@ -38,10 +53,34 @@ public class Button extends Entity {
 		getStyleImage();
 		
 	}
+	*/
+	
+	public Button(java.lang.String string, float x, float y, int tsize)
+			throws SlickException{
+		super(x, y);
+		text = string;	
+		textSize = tsize;
+		style = -1;
+		getStyleImage();
+		
+	}
+	
+	public Button(java.lang.String string, float x, float y)
+			throws SlickException{
+		super(x, y);
+		text = string;	
+		style = -1;
+		getStyleImage();
+		
+	}
 	
 	/* Getters */
 	public String getText(){
 		return text;
+	}
+	
+	public int getTextSize(){
+		return textSize;
 	}
 	
 	public int getStyle(){
@@ -53,7 +92,7 @@ public class Button extends Entity {
 	}
 	
 	public float getHeight(){
-		return 0;
+		return height;
 	}
 	
 	public void getStyleImage(){
@@ -62,7 +101,7 @@ public class Button extends Entity {
 		case 0:
 			addImageWithBoundingBox(ResourceManager.getImage(RogueGame.GUI_MENULARGE_IMG_RSC));
 		default:
-			addImageWithBoundingBox(ResourceManager.getImage(RogueGame.GUI_MENULARGE_IMG_RSC));
+			break;
 		}
 	}
 	
@@ -81,35 +120,39 @@ public class Button extends Entity {
 		text = set;
 	}
 	
+	public void setTextSize(int set){
+		textSize = set;
+	}
+	
 	public void setStyle(int set){
 		style = set;
-	}
-	
-	public void setX(float set){
-		this.setX(set);
-	}
-	
-	public void setY(float set){
-		this.setY(set);
 	}
 	
 	public void setWidth(float set){
 		width = set;
 	}
 	
+	
 	/**
-	 * @throws SlickException 
 	*/
-	public void drawText(Graphics g) throws SlickException{
+	@Override
+	public void render(Graphics g){
+		super.render(g);
+		
 		UnicodeFont alagardFont = new UnicodeFont(
-				new java.awt.Font("Alagard", Font.BOLD, 20));
+				new java.awt.Font("Alagard", Font.BOLD, textSize));
 		alagardFont.getEffects().add(new ColorEffect(java.awt.Color.white));
 		alagardFont.addNeheGlyphs();
-		alagardFont.loadGlyphs();
+		try {
+			alagardFont.loadGlyphs();
+		} catch (SlickException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		g.setFont(alagardFont);
 		g.drawString(text,
 			getX() - (alagardFont.getWidth(text)/2),
-			getY() - (alagardFont.getHeight(text)/2));
+			getY() - (alagardFont.getHeight(text)/2));		
 	}
 	
 	/* Action */
