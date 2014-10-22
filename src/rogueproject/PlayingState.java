@@ -44,7 +44,8 @@ public class PlayingState extends BasicGameState {
 			}
 		}
 		
-		actors.add(new Actor(1, 10, 2, 2, 0, 30, 25)); // The player will always be actors.get(0)
+		// The player will always be actors.get(0)
+		actors.add(new Actor(1, 10, 2, 2, 0, 1, 30, 25)); 
 	}
 	
 	@Override
@@ -57,7 +58,6 @@ public class PlayingState extends BasicGameState {
 		
 		for(Actor a : actors){
 			a.render(g);
-			//System.out.print("(" + a.getX() + ", " + a.getY() + ")\n");
 		}
 	}
 
@@ -66,18 +66,61 @@ public class PlayingState extends BasicGameState {
 			throws SlickException {
 		
 		Input input = container.getInput();
-		if (input.isKeyDown(Input.KEY_W)) { // up
-			
+		// if the player has energy for an action and isn't currently moving
+		// TODO: make action loop efficient and able to handle all other creatures.
+		if(actors.get(0).getEnergy() >= 1){ 
+			if(!actors.get(0).isMoving()){ // handle all user input in this block
+				// TODO: collision detection against walls.
+				// Directional Keys
+				//   Q   W   E
+				//    \  |  /
+				// A - restS - D
+				//    /  |  \
+				//   Z   X   C
+				if (input.isKeyDown(Input.KEY_W)) { // up
+					actors.get(0).setNextTile("n");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_X)) { // down
+					actors.get(0).setNextTile("s");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_A)) { // left
+					actors.get(0).setNextTile("w");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_D)) { // right
+					actors.get(0).setNextTile("e");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_Q)) { // up and left
+					actors.get(0).setNextTile("nw");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_E)) { // up and right
+					actors.get(0).setNextTile("ne");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_Z)) { // down and left
+					actors.get(0).setNextTile("sw");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_C)) { // down and right
+					actors.get(0).setNextTile("se");
+					actors.get(0).setMoving(true);
+				}
+				else if (input.isKeyDown(Input.KEY_S)){
+					// TODO: implement rest
+				}
+			} else {
+				if(actors.get(0).getTilePosition().equals(actors.get(0).getNextTile())){
+					actors.get(0).gainEnergy();
+					actors.get(0).setMoving(false);
+				}else {
+					actors.get(0).update(delta);				
+				}
+			}
 		}
-        else if (input.isKeyDown(Input.KEY_S)) { // down
-        	
-        }
-        else if (input.isKeyDown(Input.KEY_A)) { // left
-        	
-        }
-        else if (input.isKeyDown(Input.KEY_D)) { // right
-        	
-        }
 		
 	}
 

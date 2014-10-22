@@ -44,17 +44,6 @@ public class Button extends Entity {
 		
 	}
 	
-	/*
-	public Button(java.lang.String string, float x, float y, int bstyle)
-			throws SlickException{
-		super(x, y);
-		text = string;
-		style = bstyle;	
-		getStyleImage();
-		
-	}
-	*/
-	
 	public Button(java.lang.String string, float x, float y, int tsize)
 			throws SlickException{
 		super(x, y);
@@ -146,7 +135,6 @@ public class Button extends Entity {
 		try {
 			alagardFont.loadGlyphs();
 		} catch (SlickException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		g.setFont(alagardFont);
