@@ -47,8 +47,8 @@ public class Actor extends Entity {
 	 */
 	public Actor(int setlevel, float sethitpoints, float setattack, float setarmor, 
 			int settype, float setgain, int setx, int sety){
-		super((setx * RogueGame.TILE_SIZE) + (RogueGame.TILE_SIZE/2), //multiply to scale tile coordinates to x and y on screen
-				(sety * RogueGame.TILE_SIZE) + (RogueGame.TILE_SIZE/2)); // then add to center the coordinates in the tile
+		super((setx * RogueGame.TILE_SIZE) /*+ (RogueGame.TILE_SIZE/2)*/, //multiply to scale tile coordinates to x and y on screen
+				(sety * RogueGame.TILE_SIZE) /*+ (RogueGame.TILE_SIZE/2)*/); // then add to center the coordinates in the tile
 		level = setlevel;
 		hitPoints = sethitpoints;
 		attack = setattack;
@@ -91,11 +91,15 @@ public class Actor extends Entity {
 	}
 	
 	public int getTileX(){
-		return (int) ((getX() - (RogueGame.TILE_SIZE/2)) / RogueGame.TILE_SIZE);
+		/* System.out.print("getTileX: " + (getX() / RogueGame.TILE_SIZE) + 
+				"  cast to int: " + (int)(getX() / RogueGame.TILE_SIZE) + "\n"); */
+		return (int) (getX() / RogueGame.TILE_SIZE);
 	}
 	
 	public int getTileY(){
-		return (int) ((getY() - (RogueGame.TILE_SIZE/2))/ RogueGame.TILE_SIZE);
+		/*System.out.print("getTileY: " + (getY() / RogueGame.TILE_SIZE) +
+				"  cast to int: " + (int)(getY() / RogueGame.TILE_SIZE) + "\n"); */
+		return (int) (getY()/ RogueGame.TILE_SIZE);
 	}
 	
 	public Vector getTilePosition(){
@@ -126,8 +130,9 @@ public class Actor extends Entity {
 	}
 	
 	/* Setters */
-	/**
-	 * sets a destination tile.
+	
+	/** 
+	 * sets a destination tile. 
 	 * @param setx tile x coordinate
 	 * @param sety tile y coordinate
 	 */
@@ -142,10 +147,12 @@ public class Actor extends Entity {
 	}
 	/* Actions */
 	/**
-	 * The basic move instruction. Sets the actor's destination to a neighboring tile.
-	 * @param direction cardinal direction to a neighboring tile
+	 * The basic move instruction. Sets the actor's destination to a neighboring tile
+	 * using a direction vector in tile coordinates.
+	 * @param direction cardinal or diagonal direction to a neighboring tile
 	 */
 	public void setNextTile(java.lang.String direction){
+		//System.out.print("setting next tile. Moving = " + moving + "\n");
 		switch(direction){ // cardinal directions and 4 diagonals
 		case "n":
 			toNextTile = new Vector(0, -1);
@@ -175,6 +182,45 @@ public class Actor extends Entity {
 			break;
 		}
 		nextTile = getTilePosition().add(toNextTile);
+		//System.out.print("nextTile: " + nextTile + "\n");
+	}
+	/**
+	 * Takes a sneak peak at the next tile without setting any internal Actor attributes.
+	 * @param direction cardinal or diagonal direction to a neighboring tile
+	 * @return vector to destination tile
+	 */
+	public Vector seeNextTile(java.lang.String direction){
+		//System.out.print("looking ahead.\n");
+		Vector nt = null;
+		switch(direction){ // cardinal directions and 4 diagonals
+		case "n":
+			nt = new Vector(0, -1);
+			break;
+		case "e":
+			nt = new Vector(1, 0);
+			break;
+		case "s":
+			nt = new Vector(0, 1);
+			break;
+		case "w":
+			nt = new Vector(-1, 0);
+			break;
+		case "nw":
+			nt = new Vector(-1, -1);
+			break;
+		case "ne":
+			nt = new Vector(1, -1);
+			break;
+		case "sw":
+			nt = new Vector(-1, 1);
+			break;
+		case "se":
+			nt = new Vector(1, 1);
+			break;
+		default:
+			break;
+		}
+		return getTilePosition().add(nt);
 	}
 	
 	public void gainEnergy(){
@@ -197,10 +243,21 @@ public class Actor extends Entity {
 		anim.draw(getX(), getY());
 	}
 */
-/*
+
 	@Override
 	public void render (Graphics g){
-		g.drawImage(anim0, getX(), getY());
+		/*
+		 * Position in Tile coordinates is tracked by the top left corner of each tile,
+		 * but Entity position renders sprite images centered at the Entity's position.
+		 * To fix this, the Actor's Entity position is translated by half of the tile size
+		 * towards the bottom right corner of the tile, so the Actor's Entity position
+		 * is the middle of the tile. Then the Actor gets rendered correctly to the screen.
+		 * After the Actor is rendered, its Entity position is translated back to Tile
+		 * coordinates.
+		 */
+		setPosition(getPosition().add(new Vector(RogueGame.TILE_SIZE/2, RogueGame.TILE_SIZE/2)));
+		super.render(g);
+		setPosition(getPosition().add(new Vector(-RogueGame.TILE_SIZE/2, -RogueGame.TILE_SIZE/2)));
 	}
-*/
+
 }
