@@ -47,8 +47,8 @@ public class Actor extends Entity {
 	 */
 	public Actor(int setlevel, float sethitpoints, float setattack, float setarmor, 
 			int settype, float setgain, int setx, int sety){
-		super((setx * RogueGame.TILE_SIZE) /*+ (RogueGame.TILE_SIZE/2)*/, //multiply to scale tile coordinates to x and y on screen
-				(sety * RogueGame.TILE_SIZE) /*+ (RogueGame.TILE_SIZE/2)*/); // then add to center the coordinates in the tile
+		super((setx * RogueGame.TILE_SIZE), //multiply to scale tile coordinates to x and y on screen
+				(sety * RogueGame.TILE_SIZE)); 
 		level = setlevel;
 		hitPoints = sethitpoints;
 		attack = setattack;
@@ -60,76 +60,49 @@ public class Actor extends Entity {
 		energy = gain = setgain;
 	}
 	
+	public Actor(){
+		super(0,0);
+	}
 	/* Getters */
 	
-	public int getLevel(){
-		return level;
-	}
+	public int getLevel()			{return level;}
+	public float getHitPoints()		{return hitPoints;}
+	public float getAttack()		{return attack;}
+	public float getArmor()			{return armor;}
+	public int getType()			{return type;}
+	public float getEnergy()		{return energy;}
+	public float getGain()			{return gain;}
+	public boolean isMoving()		{return moving;}
+	public Vector getNextTile()		{return nextTile;}
 	
-	public float getHitPoints(){
-		return hitPoints;
-	}
-	
-	public float getAttack(){
-		return attack;
-	}
-	
-	public float getArmor(){
-		return armor;
-	}
-	
-	public int getType(){
-		return type;
-	}
-	
-	public float getEnergy(){
-		return energy;
-	}
-	
-	public float getGain(){
-		return gain;
-	}
-	
-	public int getTileX(){
-		/* System.out.print("getTileX: " + (getX() / RogueGame.TILE_SIZE) + 
-				"  cast to int: " + (int)(getX() / RogueGame.TILE_SIZE) + "\n"); */
-		return (int) (getX() / RogueGame.TILE_SIZE);
-	}
-	
-	public int getTileY(){
-		/*System.out.print("getTileY: " + (getY() / RogueGame.TILE_SIZE) +
-				"  cast to int: " + (int)(getY() / RogueGame.TILE_SIZE) + "\n"); */
-		return (int) (getY()/ RogueGame.TILE_SIZE);
-	}
-	
-	public Vector getTilePosition(){
-		return new Vector(getTileX(), getTileY());
-	}
-	
-	public boolean isMoving(){
-		return moving;
-	}
-	
-	public Vector getNextTile(){
-		return nextTile;
-	}
+	public int getTileX()			{return (int) (getX() / RogueGame.TILE_SIZE);}
+	public int getTileY()			{return (int) (getY()/ RogueGame.TILE_SIZE);}
+	public Vector getTilePosition()	{return new Vector(getTileX(), getTileY());}
 	
 	public void getTypeImage(){
 		switch(type){
-		case 0:			
+		case 0:		
+			break;
+		case 1:
 			anim = new Animation(ResourceManager.getSpriteSheet(
-					RogueGame.ACTOR_PLAYER0_IMG_RSC, RogueGame.TILE_SIZE, RogueGame.TILE_SIZE)
+					RogueGame.ACTOR_UNDEAD0_IMG_RSC, RogueGame.TILE_SIZE, RogueGame.TILE_SIZE)
 					, 0, 0, 0, 0, true, 300, true);
 			anim.addFrame(ResourceManager.getSpriteSheet(
-					RogueGame.ACTOR_PLAYER1_IMG_RSC, RogueGame.TILE_SIZE, RogueGame.TILE_SIZE)
+					RogueGame.ACTOR_UNDEAD1_IMG_RSC, RogueGame.TILE_SIZE, RogueGame.TILE_SIZE)
 					.getSprite(0, 0), 300);
-			break;
 		default:
 			break;
 		}
 	}
 	
 	/* Setters */
+	
+	public void setLevel(int set)		{this.level = set;}
+	public void setHitPonts(float set) 	{this.hitPoints = set;}
+	public void setAttack(float set)	{this.attack = set;}
+	public void setArmor(float set)		{this.armor = set;}
+	public void setEnergy(float set)	{this.energy = set;}
+	public void setGain(float set)		{this.gain = set;}
 	
 	/** 
 	 * sets a destination tile. 
@@ -145,76 +118,79 @@ public class Actor extends Entity {
 	public void setMoving(boolean setmoving){
 		moving = setmoving;
 	}
+	
+	public void setTilePosition(int setx, int sety){
+		this.setPosition(setx * RogueGame.TILE_SIZE, sety * RogueGame.TILE_SIZE);
+	}
+	
 	/* Actions */
+	
 	/**
 	 * The basic move instruction. Sets the actor's destination to a neighboring tile
 	 * using a direction vector in tile coordinates.
 	 * @param direction cardinal or diagonal direction to a neighboring tile
 	 */
-	public void setNextTile(java.lang.String direction){
-		//System.out.print("setting next tile. Moving = " + moving + "\n");
+	public void setNextTile(int direction){
 		switch(direction){ // cardinal directions and 4 diagonals
-		case "n":
+		case PlayingState.N:
 			toNextTile = new Vector(0, -1);
 			break;
-		case "e":
+		case PlayingState.E:
 			toNextTile = new Vector(1, 0);
 			break;
-		case "s":
+		case PlayingState.S:
 			toNextTile = new Vector(0, 1);
 			break;
-		case "w":
+		case PlayingState.W:
 			toNextTile = new Vector(-1, 0);
 			break;
-		case "nw":
+		case PlayingState.NW:
 			toNextTile = new Vector(-1, -1);
 			break;
-		case "ne":
+		case PlayingState.NE:
 			toNextTile = new Vector(1, -1);
 			break;
-		case "sw":
+		case PlayingState.SW:
 			toNextTile = new Vector(-1, 1);
 			break;
-		case "se":
+		case PlayingState.SE:
 			toNextTile = new Vector(1, 1);
 			break;
 		default:
 			break;
 		}
 		nextTile = getTilePosition().add(toNextTile);
-		//System.out.print("nextTile: " + nextTile + "\n");
 	}
 	/**
 	 * Takes a sneak peak at the next tile without setting any internal Actor attributes.
 	 * @param direction cardinal or diagonal direction to a neighboring tile
 	 * @return vector to destination tile
 	 */
-	public Vector seeNextTile(java.lang.String direction){
-		//System.out.print("looking ahead.\n");
+	public Vector seeNextTile(int direction){
 		Vector nt = null;
 		switch(direction){ // cardinal directions and 4 diagonals
-		case "n":
+		case PlayingState.N:
 			nt = new Vector(0, -1);
 			break;
-		case "e":
+		case PlayingState.E:
 			nt = new Vector(1, 0);
 			break;
-		case "s":
+		case PlayingState.S:
 			nt = new Vector(0, 1);
 			break;
-		case "w":
+		case PlayingState.W:
 			nt = new Vector(-1, 0);
 			break;
-		case "nw":
+		case PlayingState.NW:
 			nt = new Vector(-1, -1);
 			break;
-		case "ne":
+		case PlayingState.NE:
 			nt = new Vector(1, -1);
 			break;
-		case "sw":
+		case PlayingState.SW:
 			nt = new Vector(-1, 1);
 			break;
-		case "se":
+		case PlayingState.SE:
 			nt = new Vector(1, 1);
 			break;
 		default:
@@ -238,12 +214,7 @@ public class Actor extends Entity {
 	*/
 	
 	/* Render */
-/*
-	public void draw(){
-		anim.draw(getX(), getY());
-	}
-*/
-
+	
 	@Override
 	public void render (Graphics g){
 		/*
