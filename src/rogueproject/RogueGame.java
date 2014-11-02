@@ -42,17 +42,23 @@ public class RogueGame extends StateBasedGame{
 	
 	public static final String GOLDGUI_IMG_RSC = "rogueproject/resource/goldui_big_pieces_0.png"; 
 	public static final String GUI_MENULARGE_IMG_RSC = "rogueproject/resource/menu_large.png";
+	public static final String HIT_REDNUMBERS0_IMG_RSC = "rogueproject/resource/boxy_bold_fat/gradient/boxy_bold_fat_gradient_red.png";
+	public static final String HIT_REDNUMBERS1_IMG_RSC = "rogueproject/resource/boxy_bold_fat/edged/boxy_bold_fat_edge_red.png";
 	
 	public static final String ACTOR_PLAYER0_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player0.png";
 	public static final String ACTOR_PLAYER1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player1.png";
 	public static final String ACTOR_UNDEAD0_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Undead0.png";
 	public static final String ACTOR_UNDEAD1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Undead1.png";
 	
-	public static final String ALAGARD_FONT_RSC =  "rogueproject/resources/fonts/alagard_by_pix3m-d6awiwp.ttf";
+	public static final String ALAGARD_FONT_RSC =  "rogueproject/resource/fonts/alagard_by_pix3m-d6awiwp.ttf";
 	
 	public static final int WARRIOR = 0;
 	Player player;
-	ArrayList<Actor> actors;
+	Actor[][] actors2d; // for collision detection
+	boolean[][] blocked;
+	boolean[][] occupied; // for collision detection with actors
+	ArrayList<Damage> hits;
+	
 	//TODO ArrayList<Objects> objects;
 	
 	public RogueGame(String title, int width, int height) {
@@ -79,9 +85,11 @@ public class RogueGame extends StateBasedGame{
 		ResourceManager.loadImage(ACTOR_PLAYER1_IMG_RSC);
 		ResourceManager.loadImage(ACTOR_UNDEAD0_IMG_RSC);
 		ResourceManager.loadImage(ACTOR_UNDEAD1_IMG_RSC);
-		
+		ResourceManager.loadImage(HIT_REDNUMBERS0_IMG_RSC);
+		ResourceManager.loadImage(HIT_REDNUMBERS1_IMG_RSC);
+
 		player = new Player(WARRIOR);
-		actors = new ArrayList<Actor>();
+		hits = new ArrayList<Damage>(10);
 	}
 	
 	public static void main(String[] args) {

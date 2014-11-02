@@ -2,6 +2,8 @@ package rogueproject;
 
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import jig.Vector;
 
@@ -19,13 +21,11 @@ import org.newdawn.slick.tiled.TiledMap;
 public class PlayingState extends BasicGameState {
 	
 	private TiledMap map;
-	//private ArrayList<Actor> actors = new ArrayList<Actor>(1);
-	//private Player player;
-	public boolean[][] blocked;	
-	public boolean[][] occupied; // for collision detection with actors
 	
 	// input direction
-	public static final int N = 0, E = 1, S = 2, W = 3, NW = 4, NE = 5, SE = 6, SW = 7, REST = 8;
+	public static final int WAIT = -1, N = 0, E = 1, S = 2, W = 3, NW = 4, NE = 5, SE = 6, SW = 7, REST = 8;
+	
+	public boolean energyGained = false;
 	
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -39,30 +39,41 @@ public class PlayingState extends BasicGameState {
 		
 		RogueGame rg = (RogueGame)game;
 		
+		// TODO select map by depth
 		map = new TiledMap("rogueproject/resource/maps/largetestmap.tmx");
-		blocked = new boolean[map.getWidth()][map.getHeight()];
-		occupied = new boolean[map.getWidth()][map.getHeight()]; // TODO: make this a thing
+		
+		rg.blocked = new boolean[map.getWidth()][map.getHeight()];
+		rg.occupied = new boolean[map.getWidth()][map.getHeight()]; 
+		
 		// Build collision detection for map tiles, and fill occupied with false values.
 		for (int i = 0; i < map.getWidth(); i++){
 			for (int j = 0; j < map.getHeight(); j++){
-				occupied[i][j] = false;
+				rg.occupied[i][j] = false;
 				int tileID = map.getTileId(i, j, 0);
 				String value = map.getTileProperty(tileID, "blocked", "false");
 				if ("true".equals(value)){
-					blocked[i][j] = true;
+					rg.blocked[i][j] = true;
 				}
 			}
 		}
 		
 		// temp hard set to player starting position
 		rg.player.setTilePosition(7, 6);
-		System.out.print(rg.player.getPosition() + " " + rg.player.getType() + "/n");
-		occupied[rg.player.getTileX()][rg.player.getTileY()] = true;
+		
+		// at play start set the actors starting position to occupied = true;
+		rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = true;
+		
 		// add enemies TODO: this should be done on a depth basis. Get depth from
 		// player and place enemies based on which dungeon the player is in.
-		rg.actors.add(new Actor(1, 5, 1, 1, 1, 1, 14, 15));
-		for(Actor a : rg.actors){
-			occupied[a.getTileX()][a.getTileY()] = true;
+		
+		rg.actors2d = new Actor[rg.ScreenWidth][rg.ScreenHeight];
+		rg.actors2d[14][15] = new Actor(1, 5, 1, 1, 1, 1, 14, 15); // put the Actor in actors at it's position
+		
+		for(Actor[] arr : rg.actors2d){
+			for(Actor a : arr){
+				if (a != null)
+				rg.occupied[a.getTileX()][a.getTileY()] = true;
+			}
 		}
 		
 	}
@@ -73,12 +84,31 @@ public class PlayingState extends BasicGameState {
 		
 		RogueGame rg = (RogueGame)game;
 		
-		map.render(0, 0); // renders the map on screen at (x, y)
+		map.render(0, 0); // renders the map on screen at (x, y)	
 		
-		rg.player.render(g);
+		for(Actor[] arr : rg.actors2d){
+			for(Actor a : arr){
+				if(a != null){
+					a.render(g);
+					g.drawString("Enemy HP = " + a.getHitPoints(), 10, 500);
+				}
+			}
+		}
+				
+		rg.player.render(g);	
 		
-		for(Actor a : rg.actors){
-			a.render(g);
+		float drawx= 10, drawy = 50;
+		g.drawString("Energy: " + rg.player.getEnergy(), drawx, drawy);
+		drawy += 15;
+		g.drawString("Hit Points: " + rg.player.getHitPoints(), drawx, drawy);
+		drawy += 15;
+		for(int i = 0; i < map.getWidth(); i++){
+			for(int j = 0; j < map.getHeight(); j++){
+				if(rg.occupied[i][j]){
+					g.drawString("Tile (" + i + ", " + j + ") occupied. ", drawx, drawy);
+					drawy += 15;
+				}
+			}
 		}
 	}
 
@@ -89,93 +119,86 @@ public class PlayingState extends BasicGameState {
 		RogueGame rg = (RogueGame)game;
 		
 		Input input = container.getInput();
-		// if the player has energy for an action and isn't currently moving
-		// TODO: make action loop efficient and able to handle all other creatures.
-		if(rg.player.getEnergy() >= 1){ 
-			if(!rg.player.isMoving()){ // handle all user input in this block
-				// Directional Keys
-				//   Q   W   E
-				//    \  |  /
-				// A - restS - D
-				//    /  |  \
-				//   Z   X   C
-				if (input.isKeyDown(Input.KEY_W)) { // North
-					rg.player.setOrders(N);
-					if (!isBlocked(rg.player, N)){
-						rg.player.setNextTile(N);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_X)) { // South
-					rg.player.setOrders(S);
-					if (!isBlocked(rg.player, S)){
-						rg.player.setNextTile(S);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_A)) { // West
-					rg.player.setOrders(W);
-					if (!isBlocked(rg.player, W)){
-						rg.player.setNextTile(W);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_D)) { // East
-					rg.player.setOrders(E);
-					if (!isBlocked(rg.player, E)){				
-						rg.player.setNextTile(E);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_Q)) { // Northwest
-					rg.player.setOrders(NW);
-					if (!isBlocked(rg.player, NW)){				
-						rg.player.setNextTile(NW);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_E)) { // Northeast
-					rg.player.setOrders(NE);
-					if (!isBlocked(rg.player, NE)){				
-						rg.player.setNextTile(NE);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_Z)) { // Southwest
-					rg.player.setOrders(SW);
-					if (!isBlocked(rg.player, SW)){				
-						rg.player.setNextTile(SW);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_C)) { // Southeast
-					rg.player.setOrders(SE);
-					if (!isBlocked(rg.player, SE)){				
-						rg.player.setNextTile(SE);
-						rg.player.setMoving(true);
-					}
-				}
-				else if (input.isKeyDown(Input.KEY_S)){ // Rest
-					// TODO: implement rest
-					rg.player.setOrders(REST);
-				}
-			} else { // actor is moving
-				if(rg.player.getPosition().equals(rg.player.getNextTile().scale(RogueGame.TILE_SIZE))){
+		
+		// The player's turn 
+		if(rg.player != null){
+			if(rg.player.getTurn()){
+				if(!energyGained){
 					rg.player.gainEnergy();
-					rg.player.setMoving(false);
-				}else {
-					rg.player.update(delta);				
+					energyGained = true;
+				}
+				if(!rg.player.isMoving()){ // handle all user input in this block
+					// Directional Keys
+					//   Q   W   E
+					//    \  |  /
+					// A - restS - D
+					//    /  |  \
+					//   Z   X   C
+					if 		(input.isKeyDown(Input.KEY_W)) 	{rg.player.setOrders(N);} 		// North
+					else if (input.isKeyDown(Input.KEY_X)) 	{rg.player.setOrders(S);} 		// South
+					else if (input.isKeyDown(Input.KEY_A)) 	{rg.player.setOrders(W);} 		// West
+					else if (input.isKeyDown(Input.KEY_D)) 	{rg.player.setOrders(E);} 		// East
+					else if (input.isKeyDown(Input.KEY_Q)) 	{rg.player.setOrders(NW);} 		// Northwest
+					else if (input.isKeyDown(Input.KEY_E)) 	{rg.player.setOrders(NE);} 		// Northeast
+					else if (input.isKeyDown(Input.KEY_Z)) 	{rg.player.setOrders(SW);} 		// Southwest
+					else if (input.isKeyDown(Input.KEY_C)) 	{rg.player.setOrders(SE);} 		// Southeast
+					else if (input.isKeyDown(Input.KEY_S)) 	{rg.player.setOrders(REST);} 	// Rest
+					
+					rg.player.act(rg);
 				}
 			}
 		}
 		
+		//Actors turns
+		if(!rg.player.getTurn()){
+			for(Actor[] arr : rg.actors2d){
+				for(Actor a : arr){
+					if(a != null){
+						a.act(rg);
+					}
+				}
+				rg.player.setTurn(true);
+				energyGained = false;
+			}
+		}
+		
+		// update player position
+		if(rg.player.getPosition().equals(rg.player.getNextTile().scale(RogueGame.TILE_SIZE))){
+			if(rg.player.isMoving()){
+				rg.player.setMoving(false);
+				//rg.player.setTurn(false);
+			}
+		}else {
+			rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = false;
+			rg.player.update(delta);
+			rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = true;
+		}
+		
+		// remove dead enemies
+		for(Actor[] arr : rg.actors2d){
+			for(Actor a : arr){
+				if(a != null && a.getHitPoints() <= 0){
+					System.out.print("found one to delete!\n");
+					rg.occupied[a.getTileX()][a.getTileY()] = false;
+					a.remove();
+					rg.actors2d[a.getTileX()][a.getTileY()] = null;
+					a = null;
+				}
+			}
+		}
+		
+		
+		if(rg.player != null && rg.player.getHitPoints() <= 0){
+			rg.player.remove();
+			rg.player = null;
+		}
 	}
 
 	@Override
 	public int getID() {
 		return RogueGame.PLAYINGSTATE;
 	}
-	
+	/*
 	private boolean isBlocked(Actor a, int direction){
 		Vector next = null;
 		int xBlock, yBlock;
@@ -224,5 +247,5 @@ public class PlayingState extends BasicGameState {
 			return false;
 		}
 	}
-
+ 	*/
 }

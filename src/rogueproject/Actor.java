@@ -49,6 +49,8 @@ public class Actor extends Entity {
 			int settype, float setgain, int setx, int sety){
 		super((setx * RogueGame.TILE_SIZE), //multiply to scale tile coordinates to x and y on screen
 				(sety * RogueGame.TILE_SIZE)); 
+		nextTile = getTilePosition();
+		toNextTile = new Vector(0,0);
 		level = setlevel;
 		hitPoints = sethitpoints;
 		attack = setattack;
@@ -57,11 +59,13 @@ public class Actor extends Entity {
 		getTypeImage();
 		addAnimation(anim);
 		anim.setLooping(true);
-		energy = gain = setgain;
+		energy = 0;
+		gain = setgain;
 	}
 	
 	public Actor(){
 		super(0,0);
+		nextTile = toNextTile = new Vector(0,0);
 	}
 	/* Getters */
 	
@@ -78,7 +82,7 @@ public class Actor extends Entity {
 	public int getTileX()			{return (int) (getX() / RogueGame.TILE_SIZE);}
 	public int getTileY()			{return (int) (getY()/ RogueGame.TILE_SIZE);}
 	public Vector getTilePosition()	{return new Vector(getTileX(), getTileY());}
-	
+
 	public void getTypeImage(){
 		switch(type){
 		case 0:		
@@ -125,6 +129,10 @@ public class Actor extends Entity {
 	
 	/* Actions */
 	
+	public boolean act(RogueGame rg){
+		return false;
+	}
+	
 	/**
 	 * The basic move instruction. Sets the actor's destination to a neighboring tile
 	 * using a direction vector in tile coordinates.
@@ -132,6 +140,9 @@ public class Actor extends Entity {
 	 */
 	public void setNextTile(int direction){
 		switch(direction){ // cardinal directions and 4 diagonals
+		case PlayingState.WAIT:
+			toNextTile = new Vector(0, 0); // go nowhere
+			break;
 		case PlayingState.N:
 			toNextTile = new Vector(0, -1);
 			break;
@@ -157,6 +168,7 @@ public class Actor extends Entity {
 			toNextTile = new Vector(1, 1);
 			break;
 		default:
+			toNextTile = new Vector(0, 0); // go nowhere, invalid order
 			break;
 		}
 		nextTile = getTilePosition().add(toNextTile);
@@ -203,6 +215,10 @@ public class Actor extends Entity {
 		energy += gain;
 	}
 	
+	public void consumeEnergy(){
+		energy--;
+	}
+	
 	/* Update */
 	public void update(final int delta){
 		translate(toNextTile);
@@ -231,4 +247,9 @@ public class Actor extends Entity {
 		setPosition(getPosition().add(new Vector(-RogueGame.TILE_SIZE/2, -RogueGame.TILE_SIZE/2)));
 	}
 
+	public void remove(){
+		this.removeAnimation(anim);
+		anim = null;
+	}
+	
 }
