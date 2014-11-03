@@ -16,6 +16,7 @@ import org.newdawn.slick.font.effects.ColorEffect;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
+import org.newdawn.slick.util.pathfinding.*;
 
 
 public class PlayingState extends BasicGameState {
@@ -44,11 +45,12 @@ public class PlayingState extends BasicGameState {
 		
 		rg.blocked = new boolean[map.getWidth()][map.getHeight()];
 		rg.occupied = new boolean[map.getWidth()][map.getHeight()]; 
-		
+		rg.pathmap = new NodeMap(map);
+				
 		// Build collision detection for map tiles, and fill occupied with false values.
 		for (int i = 0; i < map.getWidth(); i++){
 			for (int j = 0; j < map.getHeight(); j++){
-				rg.occupied[i][j] = false;
+				rg.occupied[i][j] = false; // initialize occupied
 				int tileID = map.getTileId(i, j, 0);
 				String value = map.getTileProperty(tileID, "blocked", "false");
 				if ("true".equals(value)){
@@ -154,6 +156,7 @@ public class PlayingState extends BasicGameState {
 			for(Actor[] arr : rg.actors2d){
 				for(Actor a : arr){
 					if(a != null){
+						a.gainEnergy();
 						a.act(rg);
 					}
 				}

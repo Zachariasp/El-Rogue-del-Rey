@@ -57,6 +57,7 @@ public class RogueGame extends StateBasedGame{
 	Actor[][] actors2d; // for collision detection
 	boolean[][] blocked;
 	boolean[][] occupied; // for collision detection with actors
+	NodeMap pathmap;
 	ArrayList<Damage> hits;
 	
 	//TODO ArrayList<Objects> objects;

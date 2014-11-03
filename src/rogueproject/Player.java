@@ -68,9 +68,6 @@ public class Player extends Actor{
 	
 	@Override
 	public boolean act(RogueGame rg){
-		// TODO: set players turn to false for anything that doesn't involve moving, otherwise, let the update portion handle it.
-		// deplete energy for all actions, even rest. Energy depletion should be handled when the action is performed.
-		// Return false if the action is illegal, like walking into a wall.
 		if(this.orders != PlayingState.WAIT && getEnergy() >= 1){ // only act if the action is not wait and there is enough energy to act
 			if(this.orders != PlayingState.REST){
 				setNextTile(getOrders());
@@ -131,7 +128,7 @@ public class Player extends Actor{
 	
 	public void attack(Actor enemy){
 		// damage done to enemy is player's attack minus enemies armor. if that is less than 0, do 0 damage instead.
-		enemy.setHitPonts(enemy.getHitPoints() - Math.max(getAttack() - enemy.getArmor(), 0));
+		enemy.setHitPonts(enemy.getHitPoints() - Math.max(this.getAttack() - enemy.getArmor(), 0));
 		System.out.println("Player attack = " + this.getAttack() + 
 				", Enemy armor = " + enemy.getArmor() + 
 				", damage = " + Math.max(getAttack() - enemy.getArmor(), 0));

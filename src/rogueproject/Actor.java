@@ -3,6 +3,9 @@ package rogueproject;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.util.pathfinding.AStarPathFinder;
+import org.newdawn.slick.util.pathfinding.Mover;
+import org.newdawn.slick.util.pathfinding.Path;
 
 import jig.Entity;
 import jig.ResourceManager;
@@ -13,7 +16,7 @@ import jig.Vector;
  * @author Zacharias Shufflebarger
  *
  */
-public class Actor extends Entity {
+public class Actor extends Entity implements Mover{
 	
 	// RPG attributes
 	private int level;
@@ -130,6 +133,23 @@ public class Actor extends Entity {
 	/* Actions */
 	
 	public boolean act(RogueGame rg){
+		
+		AStarPathFinder pathFinder = new AStarPathFinder(rg.pathmap, 64, true);
+        Path path = pathFinder.findPath(this, this.getTileX(), this.getTileY(), 
+        		rg.player.getTileX(), rg.player.getTileY());
+
+        if(path.getLength() > 1){
+        	
+        }
+        
+        int length = path.getLength();
+        System.out.println("Found path of length: " + length + ".");
+
+        for(int i = 0; i < length; i++) {
+            System.out.println("Move to: " + path.getX(i) + "," + path.getY(i) + ".");
+        }
+        
+		// TODO write AI. You know, cuz I've done that before.
 		return false;
 	}
 	
@@ -217,6 +237,22 @@ public class Actor extends Entity {
 	
 	public void consumeEnergy(){
 		energy--;
+	}
+	
+	public void attack(Player player){
+		player.setHitPonts(player.getHitPoints() - Math.max(this.getAttack() - player.getArmor(), 0));
+	}
+	
+	public boolean isAdjacent(Player player){
+		return (this.getTilePosition().add(new Vector(0, -1)) == player.getTilePosition() // North
+				|| this.getTilePosition().add(new Vector(1, 0)) == player.getTilePosition() // East
+				|| this.getTilePosition().add(new Vector(0, 1)) == player.getTilePosition() // South
+				|| this.getTilePosition().add(new Vector(-1, 0)) == player.getTilePosition() // West
+				|| this.getTilePosition().add(new Vector(-1, -1)) == player.getTilePosition() // Northwest
+				|| this.getTilePosition().add(new Vector(1, -1)) == player.getTilePosition() // Northeast
+				|| this.getTilePosition().add(new Vector(1, 1)) == player.getTilePosition() // Southeast
+				|| this.getTilePosition().add(new Vector(-1, 1)) == player.getTilePosition() // Southwest
+				);
 	}
 	
 	/* Update */
