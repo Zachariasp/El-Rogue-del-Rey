@@ -16,6 +16,23 @@ import org.newdawn.slick.util.ResourceLoader;
  * 
  * @author Zacharias Shufflebarger
  *
+ *	This file is part of El Rogue del Rey.
+ *
+ *  El Rogue del Rey is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  El Rogue del Rey is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with El Rogue del Rey.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *	Copyright 2014 Zacharias Shufflebarger
+ *
  */
 public class StartUpState extends BasicGameState {
 	RogueGame rg;
@@ -67,7 +84,7 @@ public class StartUpState extends BasicGameState {
 
 		Input input = container.getInput();
 		
-		if(input.isMousePressed(Input.MOUSE_LEFT_BUTTON)
+		if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)
 				&& input.getAbsoluteMouseX() <= startButton.getCoarseGrainedMaxX()
 				&& input.getAbsoluteMouseX() >= startButton.getCoarseGrainedMinX()
 				&& input.getAbsoluteMouseY() <= startButton.getCoarseGrainedMaxY()
@@ -75,6 +92,14 @@ public class StartUpState extends BasicGameState {
 
 			rg.enterState(RogueGame.PLAYINGSTATE);	
 			//System.out.print("mouse pressed\n");
+		}
+		if (input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON)
+				&& input.getAbsoluteMouseX() <= exitButton.getCoarseGrainedMaxX()
+				&& input.getAbsoluteMouseX() >= exitButton.getCoarseGrainedMinX()
+				&& input.getAbsoluteMouseY() <= exitButton.getCoarseGrainedMaxY()
+				&& input.getAbsoluteMouseY() >= exitButton.getCoarseGrainedMinY()){
+			System.out.println("exit!!");
+			container.exit();
 		}
 	}
 	

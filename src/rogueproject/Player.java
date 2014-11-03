@@ -5,6 +5,28 @@ import jig.Vector;
 
 import org.newdawn.slick.Animation;
 
+/**
+ * 
+ * @author Zacharias Shufflebarger
+ *
+ *	This file is part of El Rogue del Rey.
+ *
+ *  El Rogue del Rey is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  El Rogue del Rey is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with El Rogue del Rey.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *	Copyright 2014 Zacharias Shufflebarger
+ *
+ */
 public class Player extends Actor{
 
 	private int depth; // track the player's depth in the dungeon
@@ -46,15 +68,18 @@ public class Player extends Actor{
 	
 	/* Setters */
 	
+	@Override
 	public void setTypeAttributes(){
 		switch(this.getType()){
 		case 0:
 			this.setLevel(1);
-			this.setHitPonts(50);
+			this.setMaxHitPoints(10);
+			this.setHitPonts(10);
 			this.setAttack(2);
 			this.setArmor(0);
 			this.setEnergy(0);
 			this.setGain(1);
+			this.setExp(0);
 			break;
 		default:
 			break;
@@ -74,6 +99,7 @@ public class Player extends Actor{
 			// rest
 			if(this.getNextTile().equals(this.getTilePosition())){
 				// TODO make rest regen health
+				this.setHitPonts(this.getHitPoints() + 0.25f);
 				this.consumeEnergy();
 				this.setTurn(false);
 				return true;
@@ -86,20 +112,12 @@ public class Player extends Actor{
 			}
 			// if the indicated direction is an enemy, attack it.
 			else if (isOccupied(rg.occupied)){
-				System.out.println("Tile " + this.getNextTile() + " is occupied.");
 				for(Actor a : rg.actors){
-					System.out.println("actor position = " + a.getTilePosition() + ", player next tile = " + this.getNextTile());
 					if(a.getTilePosition().equals(this.getNextTile())){
-						System.out.println("attacking actor at " + a.getTilePosition());
 						attackActor(a);
 						this.consumeEnergy();
 						setNextTile(PlayingState.WAIT);
 						this.setTurn(false);
-						try{
-							Thread.sleep(200);
-						} catch (InterruptedException e){
-							System.err.println("sleep error: " + e.getMessage());
-						}
 					}
 				}
 					// TODO add 

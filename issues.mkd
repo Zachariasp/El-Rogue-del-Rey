@@ -3,16 +3,21 @@
 - **[1]** Need a Start Menu
 - **[2]** Need to make the start menu transition to different states
 - **[3]** Need Actor class that can render actors
+- **[6]** Need a basic, playable game
+- **[7]** Need at least one map
 - **[8]** Need player and enemies
 - **[9]** Need basic movement for actors
 - **[10]** Need collision detection
+- **[11]** Need path finding AI for enemies
+- **[12]** Need attack AI for enemies
 
 ## Open Issues ##
 
 
 - **[4]** Need to make buttons animated when selected
 - **[5]** Need to make Start Menu prettier
-- **[6]** Need a basic, playable game
-- **[7]** Need at least one map
-- **[11]** Need path finding AI for enemies
-- **[12]** Need attack AI for enemies
+- **[13]** Need Objects
+- **[14]** Need Items
+- **[15]** Need to use Objects and Items to create complete maps
+
+
