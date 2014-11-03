@@ -11,12 +11,14 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.state.StateBasedGame;
 
+import org.newdawn.slick.util.ResourceLoader;
 /* All this to write text. */
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
 
 import java.awt.Font;
 import java.awt.Color;
+import java.io.InputStream;
 
 /**
  * 
@@ -52,9 +54,14 @@ public class RogueGame extends StateBasedGame{
 	
 	public static final String ALAGARD_FONT_RSC =  "rogueproject/resource/fonts/alagard_by_pix3m-d6awiwp.ttf";
 	
+	// Font from Joel
+	Font awtFont;
+	TrueTypeFont courierBOLD12;
+	TrueTypeFont custom12;
+	
 	public static final int WARRIOR = 0;
 	Player player;
-	Actor[][] actors2d; // for collision detection
+	ArrayList<Actor> actors;
 	boolean[][] blocked;
 	boolean[][] occupied; // for collision detection with actors
 	NodeMap pathmap;

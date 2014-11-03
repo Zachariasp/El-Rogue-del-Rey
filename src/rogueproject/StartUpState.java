@@ -58,7 +58,7 @@ public class StartUpState extends BasicGameState {
 		// Render Buttons
 		startButton.render(g);
 		exitButton.render(g);
-
+	
 	}
 	
 	@Override

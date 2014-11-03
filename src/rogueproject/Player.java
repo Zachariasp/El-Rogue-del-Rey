@@ -1,6 +1,7 @@
 package rogueproject;
 
 import jig.ResourceManager;
+import jig.Vector;
 
 import org.newdawn.slick.Animation;
 
@@ -49,7 +50,7 @@ public class Player extends Actor{
 		switch(this.getType()){
 		case 0:
 			this.setLevel(1);
-			this.setHitPonts(10);
+			this.setHitPonts(50);
 			this.setAttack(2);
 			this.setArmor(0);
 			this.setEnergy(0);
@@ -68,58 +69,56 @@ public class Player extends Actor{
 	@Override
 	public boolean act(RogueGame rg){
 		if(this.orders != PlayingState.WAIT && getEnergy() >= 1){ // only act if the action is not wait and there is enough energy to act
-			if(this.orders != PlayingState.REST){
-				setNextTile(getOrders());
-				this.orders = PlayingState.WAIT;
-				// if the player indicates a direction that is not an obstacle, enemy, or object, move into the open tile.
-				if (!isBlocked(rg.blocked) && !isOccupied(rg.occupied)){
-					move();
-					this.consumeEnergy();
-					return true;
-				}
-				// if the indicated direction is an enemy, attack it.
-				else if (isOccupied(rg.occupied)){
-					if(rg.actors2d[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()] != null){
-						attackActor(rg.actors2d[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()]);
+			setNextTile(getOrders());
+			this.orders = PlayingState.WAIT;
+			// rest
+			if(this.getNextTile().equals(this.getTilePosition())){
+				// TODO make rest regen health
+				this.consumeEnergy();
+				this.setTurn(false);
+				return true;
+			}
+			// if the player indicates a direction that is not an obstacle, enemy, or object, move into the open tile.
+			else if (!isBlocked(rg.blocked) && !isOccupied(rg.occupied)){
+				move();
+				this.consumeEnergy();
+				return true;
+			}
+			// if the indicated direction is an enemy, attack it.
+			else if (isOccupied(rg.occupied)){
+				System.out.println("Tile " + this.getNextTile() + " is occupied.");
+				for(Actor a : rg.actors){
+					System.out.println("actor position = " + a.getTilePosition() + ", player next tile = " + this.getNextTile());
+					if(a.getTilePosition().equals(this.getNextTile())){
+						System.out.println("attacking actor at " + a.getTilePosition());
+						attackActor(a);
 						this.consumeEnergy();
 						setNextTile(PlayingState.WAIT);
+						this.setTurn(false);
 						try{
-							Thread.sleep(250);
+							Thread.sleep(200);
 						} catch (InterruptedException e){
 							System.err.println("sleep error: " + e.getMessage());
 						}
-						//rg.hits.add(new Damage(this.getNextTile().getX(), this.getNextTile().getY(),0));
 					}
+				}
 					// TODO add 
 					//			// if the indicated direction is an object, interact with it.
 					//			else if (rg.objects[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()] != null){
 					//				interact(rg.objects[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()]);
 					//			}
-					return true;
-				}
-				else{
-					setNextTile(PlayingState.WAIT); // go nowhere
-					return false;
-				}
-			} else {
-				//TODO rest
-				this.consumeEnergy();
 				return true;
 			}
+			else{
+				setNextTile(PlayingState.WAIT); // go nowhere
+				return false;
+			}
 		} else if (getEnergy() < 1){
-			this.setTurn(false);
 			return false;
 		}
 		return false;
 	}
-	/*
-	@Override
-	public void attack(Actor enemy){
-		// damage done to enemy is player's attack minus enemies armor. if that is less than 0, do 0 damage instead.
-		enemy.setHitPonts(enemy.getHitPoints() - Math.max(this.getAttack() - enemy.getArmor(), 0));
-		System.out.println("Player attack = " + this.getAttack() + 
-				", Enemy armor = " + enemy.getArmor() + 
-				", damage = " + Math.max(getAttack() - enemy.getArmor(), 0));
-	}
-	*/
+
+	
+	
 }

@@ -9,9 +9,12 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
-
-import java.awt.Font;
 import java.awt.Color;
+import org.newdawn.slick.TrueTypeFont;
+import java.io.InputStream;
+import java.awt.Font;
+
+
 
 /**
  * 
@@ -140,7 +143,8 @@ public class Button extends Entity {
 		g.setFont(alagardFont);
 		g.drawString(text,
 			getX() - (alagardFont.getWidth(text)/2),
-			getY() - (alagardFont.getHeight(text)/2));		
+			getY() - (alagardFont.getHeight(text)/2));	
+		
 	}
 	
 	/* Action */

@@ -68,16 +68,14 @@ public class PlayingState extends BasicGameState {
 		rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = true;
 		
 		// add enemies TODO: this should be done on a depth basis. Get depth from
-		// player and place enemies based on which dungeon the player is in.
+		// player and place enemies based on which dungeon the player is in.	
+		rg.actors = new ArrayList<Actor>();
+		rg.actors.add( new Actor(1, 5, 1, 1, 1, 1, 14, 15));
+		rg.actors.add( new Actor(1, 5, 1, 1, 1, 1, 10, 16));
+		rg.actors.add( new Actor(1, 5, 1, 1, 1, 1, 13, 17));
 		
-		rg.actors2d = new Actor[rg.ScreenWidth][rg.ScreenHeight];
-		rg.actors2d[14][15] = new Actor(1, 5, 1, 1, 1, 1, 14, 15); // put the Actor in actors at it's position
-		
-		for(Actor[] arr : rg.actors2d){
-			for(Actor a : arr){
-				if (a != null)
-				rg.occupied[a.getTileX()][a.getTileY()] = true;
-			}
+		for(Actor a : rg.actors){
+			rg.occupied[a.getTileX()][a.getTileY()] = true;
 		}
 		
 	}
@@ -90,18 +88,14 @@ public class PlayingState extends BasicGameState {
 		
 		map.render(0, 0); // renders the map on screen at (x, y)	
 		
-		for(Actor[] arr : rg.actors2d){
-			for(Actor a : arr){
-				if(a != null){
-					a.render(g);
-					g.drawString("Enemy HP = " + a.getHitPoints(), 10, 500);
-					g.drawString("Enemy Energy = " + a.getEnergy(), 10, 515);
-					g.drawString("Enemy position: " + a.getTilePosition(), 10, 530);
-					g.drawString("Enemy next tile: " + a.getNextTile(), 10, 545);
-				}
-			}
+		for(Actor a : rg.actors){
+			a.render(g);
+			/*g.drawString("Enemy HP = " + a.getHitPoints(), 10, 500);
+			g.drawString("Enemy Energy = " + a.getEnergy(), 10, 515);
+			g.drawString("Enemy position: " + a.getTilePosition(), 10, 530);
+			g.drawString("Enemy next tile: " + a.getNextTile(), 10, 545); */
 		}
-				
+		
 		rg.player.render(g);	
 		
 		float drawx= 10, drawy = 50;
@@ -126,7 +120,6 @@ public class PlayingState extends BasicGameState {
 		RogueGame rg = (RogueGame)game;
 		
 		Input input = container.getInput();
-		System.out.println("players turn = " + rg.player.getTurn() + ", actorsTurns = " + actorsTurns);
 		// The player's turn 
 		if(rg.player != null){
 			if(rg.player.getTurn()){
@@ -154,13 +147,9 @@ public class PlayingState extends BasicGameState {
 					rg.player.act(rg);
 					if(!rg.player.getTurn()){ // not player's turn after taking action
 						// set actors' turns
-						for(Actor[] arr : rg.actors2d){
-							for(Actor a : arr){
-								if(a != null){
-									a.setTurn(true);
-									a.setGained(false);
-								}
-							}
+						for(Actor a : rg.actors){
+							a.setTurn(true);
+							a.setGained(false);
 						}
 					}
 				}
@@ -172,15 +161,11 @@ public class PlayingState extends BasicGameState {
 					rg.player.setMoving(false);
 					// end player's turn and begin actors' turns
 					rg.player.setTurn(false);
-					for(Actor[] arr : rg.actors2d){
-						for(Actor a : arr){
-							if(a != null){
-								a.setTurn(true);
-								a.setGained(false);
-							}
-						}
-					}
 					
+					for(Actor a : rg.actors){
+						a.setTurn(true);
+						a.setGained(false);
+					}
 				}else {
 					rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = false;
 					rg.player.update(delta);
@@ -192,58 +177,40 @@ public class PlayingState extends BasicGameState {
 		//Actors turns
 		if(!rg.player.getTurn()){
 			actorsTurns = false;
-			for(Actor[] arr : rg.actors2d){
-				for(Actor a : arr){
-					if(a != null){
-						a.act(rg);
+			for(Actor a : rg.actors){
+				a.act(rg);
+				if(a.getTurn()) actorsTurns = true;
+				// update actors
+				if(a.isMoving()){
+					if(a.getPosition().equals(a.getNextTile().scale(RogueGame.TILE_SIZE))){
+						a.setMoving(false);
+						a.setTurn(false);
+					} else {
+						//System.out.println("updating actor " + a.getTilePosition() + " to " + a.getNextTile());
+						rg.occupied[a.getTileX()][a.getTileY()] = false;
+						a.update(delta);
+						rg.occupied[a.getTileX()][a.getTileY()] = true;
 						if(a.getTurn()) actorsTurns = true;
 					}
 				}
 			}
-			
-			// update actors
-			for(Actor[] arr : rg.actors2d){
-				for(Actor a : arr){
-					if(a != null){
-						if(a.isMoving()){
-							if(a.getPosition().equals(a.getNextTile().scale(RogueGame.TILE_SIZE))){
-								a.setMoving(false);
-								a.setTurn(false);
-								if(a.getTurn()) actorsTurns = true;
-							} else {
-								//System.out.println("updating actor " + a.getTilePosition() + " to " + a.getNextTile());
-								rg.occupied[a.getTileX()][a.getTileY()] = false;
-								a.update(delta);
-								rg.occupied[a.getTileX()][a.getTileY()] = true;
-								if(a.getTurn()) actorsTurns = true;
-							}
-						}
-					}
-				}
-			}
+			// set players turn if all actors are done with theirs.
 			if(!actorsTurns){
 				rg.player.setTurn(true);
 				rg.player.setGained(false);
 			}
-		}
+		}	
 		
-		
-		
-		
-		
-		// remove dead enemies
-		for(Actor[] arr : rg.actors2d){
-			for(Actor a : arr){
-				if(a != null && a.getHitPoints() <= 0){
-					System.out.print("found one to delete!\n");
-					rg.occupied[a.getTileX()][a.getTileY()] = false;
-					a.remove();
-					rg.actors2d[a.getTileX()][a.getTileY()] = null;
-					a = null;
-				}
+		// remove dead enemies	
+		for(int i = rg.actors.size()-1; i >= 0; i--){
+			Actor a = rg.actors.get(i);
+			if(a.getHitPoints() <= 0){
+				System.out.print("found one to delete!\n");
+				rg.occupied[a.getTileX()][a.getTileY()] = false;
+				a.remove();
+				if(rg.actors.remove(a)) System.out.println("deleted.");
 			}
 		}
-		
 		
 		if(rg.player != null && rg.player.getHitPoints() <= 0){
 			rg.player.remove();
@@ -255,54 +222,5 @@ public class PlayingState extends BasicGameState {
 	public int getID() {
 		return RogueGame.PLAYINGSTATE;
 	}
-	/*
-	private boolean isBlocked(Actor a, int direction){
-		Vector next = null;
-		int xBlock, yBlock;
-		switch(direction){
-		case N:
-			next = a.seeNextTile(N);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case E:
-			next = a.seeNextTile(E);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case S:
-			next = a.seeNextTile(S);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case W:
-			next = a.seeNextTile(W);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case NW:
-			next = a.seeNextTile(NW);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case NE:
-			next = a.seeNextTile(NE);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case SW:
-			next = a.seeNextTile(SW);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		case SE:
-			next = a.seeNextTile(SE);
-			xBlock = (int) next.getX() ;
-	        yBlock = (int) next.getY() ;
-	        return blocked[xBlock][yBlock];
-		default:
-			return false;
-		}
-	}
- 	*/
+
 }
