@@ -24,6 +24,22 @@ import java.io.InputStream;
  * 
  * @author Zacharias Shufflebarger
  *
+ *	This file is part of El Rogue del Rey.
+ *
+ *  El Rogue del Rey is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  El Rogue del Rey is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with El Rogue del Rey.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *	Copyright 2014 Zacharias Shufflebarger
  */
 public class RogueGame extends StateBasedGame{
 
@@ -51,6 +67,8 @@ public class RogueGame extends StateBasedGame{
 	public static final String ACTOR_PLAYER1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player1.png";
 	public static final String ACTOR_UNDEAD0_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Undead0.png";
 	public static final String ACTOR_UNDEAD1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Undead1.png";
+	public static final String ACTOR_PEST0_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Pest0.png";
+	public static final String ACTOR_PEST1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Pest1.png";
 	
 	public static final String ALAGARD_FONT_RSC =  "rogueproject/resource/fonts/alagard_by_pix3m-d6awiwp.ttf";
 	
@@ -93,6 +111,8 @@ public class RogueGame extends StateBasedGame{
 		ResourceManager.loadImage(ACTOR_PLAYER1_IMG_RSC);
 		ResourceManager.loadImage(ACTOR_UNDEAD0_IMG_RSC);
 		ResourceManager.loadImage(ACTOR_UNDEAD1_IMG_RSC);
+		ResourceManager.loadImage(ACTOR_PEST0_IMG_RSC);
+		ResourceManager.loadImage(ACTOR_PEST1_IMG_RSC);
 		ResourceManager.loadImage(HIT_REDNUMBERS0_IMG_RSC);
 		ResourceManager.loadImage(HIT_REDNUMBERS1_IMG_RSC);
 
