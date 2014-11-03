@@ -26,7 +26,9 @@ public class PlayingState extends BasicGameState {
 	// input direction
 	public static final int WAIT = -1, N = 0, E = 1, S = 2, W = 3, NW = 4, NE = 5, SE = 6, SW = 7, REST = 8;
 	
-	public boolean energyGained = false;
+	
+	// collective boolean for of all actors turns
+	public boolean actorsTurns = false; 
 	
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -93,6 +95,9 @@ public class PlayingState extends BasicGameState {
 				if(a != null){
 					a.render(g);
 					g.drawString("Enemy HP = " + a.getHitPoints(), 10, 500);
+					g.drawString("Enemy Energy = " + a.getEnergy(), 10, 515);
+					g.drawString("Enemy position: " + a.getTilePosition(), 10, 530);
+					g.drawString("Enemy next tile: " + a.getNextTile(), 10, 545);
 				}
 			}
 		}
@@ -121,13 +126,13 @@ public class PlayingState extends BasicGameState {
 		RogueGame rg = (RogueGame)game;
 		
 		Input input = container.getInput();
-		
+		System.out.println("players turn = " + rg.player.getTurn() + ", actorsTurns = " + actorsTurns);
 		// The player's turn 
 		if(rg.player != null){
 			if(rg.player.getTurn()){
-				if(!energyGained){
+				if(!rg.player.getGained()){
 					rg.player.gainEnergy();
-					energyGained = true;
+					rg.player.setGained(true);
 				}
 				if(!rg.player.isMoving()){ // handle all user input in this block
 					// Directional Keys
@@ -147,35 +152,84 @@ public class PlayingState extends BasicGameState {
 					else if (input.isKeyDown(Input.KEY_S)) 	{rg.player.setOrders(REST);} 	// Rest
 					
 					rg.player.act(rg);
+					if(!rg.player.getTurn()){ // not player's turn after taking action
+						// set actors' turns
+						for(Actor[] arr : rg.actors2d){
+							for(Actor a : arr){
+								if(a != null){
+									a.setTurn(true);
+									a.setGained(false);
+								}
+							}
+						}
+					}
+				}
+			}
+			// update player position
+			if(rg.player.isMoving()){
+				if(rg.player.getPosition().equals(rg.player.getNextTile().scale(RogueGame.TILE_SIZE))){
+					//player reached destination.
+					rg.player.setMoving(false);
+					// end player's turn and begin actors' turns
+					rg.player.setTurn(false);
+					for(Actor[] arr : rg.actors2d){
+						for(Actor a : arr){
+							if(a != null){
+								a.setTurn(true);
+								a.setGained(false);
+							}
+						}
+					}
+					
+				}else {
+					rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = false;
+					rg.player.update(delta);
+					rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = true;
 				}
 			}
 		}
 		
 		//Actors turns
 		if(!rg.player.getTurn()){
+			actorsTurns = false;
 			for(Actor[] arr : rg.actors2d){
 				for(Actor a : arr){
 					if(a != null){
-						a.gainEnergy();
 						a.act(rg);
+						if(a.getTurn()) actorsTurns = true;
 					}
 				}
+			}
+			
+			// update actors
+			for(Actor[] arr : rg.actors2d){
+				for(Actor a : arr){
+					if(a != null){
+						if(a.isMoving()){
+							if(a.getPosition().equals(a.getNextTile().scale(RogueGame.TILE_SIZE))){
+								a.setMoving(false);
+								a.setTurn(false);
+								if(a.getTurn()) actorsTurns = true;
+							} else {
+								//System.out.println("updating actor " + a.getTilePosition() + " to " + a.getNextTile());
+								rg.occupied[a.getTileX()][a.getTileY()] = false;
+								a.update(delta);
+								rg.occupied[a.getTileX()][a.getTileY()] = true;
+								if(a.getTurn()) actorsTurns = true;
+							}
+						}
+					}
+				}
+			}
+			if(!actorsTurns){
 				rg.player.setTurn(true);
-				energyGained = false;
+				rg.player.setGained(false);
 			}
 		}
 		
-		// update player position
-		if(rg.player.getPosition().equals(rg.player.getNextTile().scale(RogueGame.TILE_SIZE))){
-			if(rg.player.isMoving()){
-				rg.player.setMoving(false);
-				//rg.player.setTurn(false);
-			}
-		}else {
-			rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = false;
-			rg.player.update(delta);
-			rg.occupied[rg.player.getTileX()][rg.player.getTileY()] = true;
-		}
+		
+		
+		
 		
 		// remove dead enemies
 		for(Actor[] arr : rg.actors2d){

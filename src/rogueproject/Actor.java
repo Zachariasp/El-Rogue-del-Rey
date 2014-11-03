@@ -27,6 +27,8 @@ public class Actor extends Entity implements Mover{
 	private int type; // Player, creature, etc.
 	private Animation anim;
 	// Action attributes
+	private boolean turn;
+	public boolean energyGained = false; // false = no energy gained this turn.
 	private boolean moving = false;
 	private float xdest, ydest;
 	private Vector dest, // AI pathfinding final destination
@@ -64,6 +66,7 @@ public class Actor extends Entity implements Mover{
 		anim.setLooping(true);
 		energy = 0;
 		gain = setgain;
+		turn = false;
 	}
 	
 	public Actor(){
@@ -81,7 +84,9 @@ public class Actor extends Entity implements Mover{
 	public float getGain()			{return gain;}
 	public boolean isMoving()		{return moving;}
 	public Vector getNextTile()		{return nextTile;}
-	
+	public boolean getTurn()		{return this.turn;}
+	public boolean getGained()		{return this.energyGained;}
+
 	public int getTileX()			{return (int) (getX() / RogueGame.TILE_SIZE);}
 	public int getTileY()			{return (int) (getY()/ RogueGame.TILE_SIZE);}
 	public Vector getTilePosition()	{return new Vector(getTileX(), getTileY());}
@@ -110,7 +115,9 @@ public class Actor extends Entity implements Mover{
 	public void setArmor(float set)		{this.armor = set;}
 	public void setEnergy(float set)	{this.energy = set;}
 	public void setGain(float set)		{this.gain = set;}
-	
+	public void setTurn(boolean set)	{this.turn = set;}
+	public void setGained(boolean set)	{this.energyGained = set;}
+
 	/** 
 	 * sets a destination tile. 
 	 * @param setx tile x coordinate
@@ -134,24 +141,80 @@ public class Actor extends Entity implements Mover{
 	
 	public boolean act(RogueGame rg){
 		
-		AStarPathFinder pathFinder = new AStarPathFinder(rg.pathmap, 64, true);
-        Path path = pathFinder.findPath(this, this.getTileX(), this.getTileY(), 
-        		rg.player.getTileX(), rg.player.getTileY());
+		if(this.turn && !this.moving){
+			if(!this.energyGained){
+				this.gainEnergy();
+				this.energyGained = true;
+			}
+			AStarPathFinder pathFinder = new AStarPathFinder(rg.pathmap, 64, true);
+			Path path = pathFinder.findPath(this, this.getTileX(), this.getTileY(), 
+					rg.player.getTileX(), rg.player.getTileY());
+			if(path.getLength() > 1){
+				this.nextTile = new Vector(path.getX(1), path.getY(1)); // set orders
+			} else{
+				this.nextTile = this.getPosition(); // wait
+			}
+			if(this.getEnergy() >= 1){
+				if(this.nextTile != this.getPosition()){
+					if (!isBlocked(rg.blocked) && !isOccupied(rg.occupied)){
+						this.toNextTile = this.nextTile.subtract(this.getTilePosition());
+						move();
+						this.consumeEnergy();
+						return true;
+					}
+					else if (isOccupied(rg.occupied)){
+						if(this.nextTile == rg.player.getPosition()){
+							attackPlayer(rg.player);
+							this.consumeEnergy();
+							this.nextTile = this.getPosition();
+							this.turn = false;
+							/*try{
+							Thread.sleep(250);
+						} catch (InterruptedException e){
+							System.err.println("sleep error: " + e.getMessage());
+						}*/
+							//rg.hits.add(new Damage(this.getNextTile().getX(), this.getNextTile().getY(),0));
+						}
+						return true;
+					}
+				} else { // rest
+					this.consumeEnergy();
+					this.turn = false;
+					return true;
+				}
+			}else{
+				return false;
+			}
 
-        if(path.getLength() > 1){
-        	
-        }
-        
-        int length = path.getLength();
-        System.out.println("Found path of length: " + length + ".");
-
-        for(int i = 0; i < length; i++) {
-            System.out.println("Move to: " + path.getX(i) + "," + path.getY(i) + ".");
-        }
-        
-		// TODO write AI. You know, cuz I've done that before.
+			this.nextTile = this.getPosition();
+			this.turn = false;
+			return false;
+		}
 		return false;
 	}
+	
+	public boolean isBlocked(boolean[][] blocked){
+		return blocked[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()];
+	}
+	
+	public boolean isOccupied(boolean[][] occupied){
+		return occupied[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()];
+	}
+	
+	public void move(){
+		setMoving(true);
+	}
+	
+	public void attackActor(Actor enemy){
+		// damage done to enemy is player's attack minus enemies armor. if that is less than 0, do 0 damage instead.
+		enemy.setHitPonts(enemy.getHitPoints() - Math.max(this.getAttack() - enemy.getArmor(), 0));
+	}
+	
+	public void attackPlayer(Player enemy){
+		// damage done to enemy is player's attack minus enemies armor. if that is less than 0, do 0 damage instead.
+		enemy.setHitPonts(enemy.getHitPoints() - Math.max(this.getAttack() - enemy.getArmor(), 0));
+	}
+	
 	
 	/**
 	 * The basic move instruction. Sets the actor's destination to a neighboring tile

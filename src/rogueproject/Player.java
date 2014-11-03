@@ -9,7 +9,7 @@ public class Player extends Actor{
 	private int depth; // track the player's depth in the dungeon
 	private int orders = PlayingState.WAIT; // store the input here for acting
 	private int classtype;
-	private boolean turn = true;
+	//private boolean turn = true;
 	private Animation anim;
 	
 	public Player(int charClass){
@@ -20,12 +20,12 @@ public class Player extends Actor{
 		getTypeImage();
 		addAnimation(anim);
 		anim.setLooping(true);
+		this.setTurn(true);
 	}
 	/* Getters */
 	
 	public int getDepth()		{return this.depth;}
 	public int getOrders()		{return this.orders;}
-	public boolean getTurn()	{return this.turn;}
 	
 	@Override
 	public void getTypeImage(){
@@ -51,7 +51,7 @@ public class Player extends Actor{
 			this.setLevel(1);
 			this.setHitPonts(10);
 			this.setAttack(2);
-			this.setArmor(2);
+			this.setArmor(0);
 			this.setEnergy(0);
 			this.setGain(1);
 			break;
@@ -62,7 +62,6 @@ public class Player extends Actor{
 	
 	public void setDepth(int set)		{this.depth = set;}
 	public void setOrders(int set)		{this.orders = set;}
-	public void setTurn(boolean set)	{this.turn = set;}
 	
 	/* Actions */
 	
@@ -81,7 +80,7 @@ public class Player extends Actor{
 				// if the indicated direction is an enemy, attack it.
 				else if (isOccupied(rg.occupied)){
 					if(rg.actors2d[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()] != null){
-						attack(rg.actors2d[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()]);
+						attackActor(rg.actors2d[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()]);
 						this.consumeEnergy();
 						setNextTile(PlayingState.WAIT);
 						try{
@@ -108,24 +107,13 @@ public class Player extends Actor{
 				return true;
 			}
 		} else if (getEnergy() < 1){
-			this.turn = false;
+			this.setTurn(false);
 			return false;
 		}
 		return false;
 	}
-	
-	public boolean isBlocked(boolean[][] blocked){
-		return blocked[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()];
-	}
-	
-	public boolean isOccupied(boolean[][] occupied){
-		return occupied[(int)this.getNextTile().getX()][(int)this.getNextTile().getY()];
-	}
-	
-	public void move(){
-		setMoving(true);
-	}
-	
+	/*
+	@Override
 	public void attack(Actor enemy){
 		// damage done to enemy is player's attack minus enemies armor. if that is less than 0, do 0 damage instead.
 		enemy.setHitPonts(enemy.getHitPoints() - Math.max(this.getAttack() - enemy.getArmor(), 0));
@@ -133,5 +121,5 @@ public class Player extends Actor{
 				", Enemy armor = " + enemy.getArmor() + 
 				", damage = " + Math.max(getAttack() - enemy.getArmor(), 0));
 	}
-	
+	*/
 }
