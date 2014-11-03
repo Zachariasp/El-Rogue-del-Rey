@@ -1,11 +1,16 @@
 package rogueproject;
 
+
+
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.util.ResourceLoader;
+
 
 /**
  * 
@@ -30,6 +35,7 @@ public class StartUpState extends BasicGameState {
 		container.setSoundOn(false);
 		rg = (RogueGame)game;
 		
+		
 		// Create Title
 		title = new Button("El Rogue del Rey",
 				(rg.ScreenWidth * 0.5f), (rg.ScreenHeight * 0.2f), 48);
@@ -52,7 +58,7 @@ public class StartUpState extends BasicGameState {
 		// Render Buttons
 		startButton.render(g);
 		exitButton.render(g);
-
+	
 	}
 	
 	@Override
