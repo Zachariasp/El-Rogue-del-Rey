@@ -60,8 +60,6 @@ public class RogueGame extends StateBasedGame{
 	
 	public static final String GOLDGUI_IMG_RSC = "rogueproject/resource/goldui_big_pieces_0.png"; 
 	public static final String GUI_MENULARGE_IMG_RSC = "rogueproject/resource/menu_large.png";
-	public static final String HIT_REDNUMBERS0_IMG_RSC = "rogueproject/resource/boxy_bold_fat/gradient/boxy_bold_fat_gradient_red.png";
-	public static final String HIT_REDNUMBERS1_IMG_RSC = "rogueproject/resource/boxy_bold_fat/edged/boxy_bold_fat_edge_red.png";
 	
 	public static final String ACTOR_PLAYER0_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player0.png";
 	public static final String ACTOR_PLAYER1_IMG_RSC = "rogueproject/resource/DawnLike_3/Characters/Player1.png";
@@ -83,7 +81,6 @@ public class RogueGame extends StateBasedGame{
 	boolean[][] blocked;
 	boolean[][] occupied; // for collision detection with actors
 	NodeMap pathmap;
-	ArrayList<Damage> hits;
 	
 	//TODO ArrayList<Objects> objects;
 	
@@ -113,11 +110,9 @@ public class RogueGame extends StateBasedGame{
 		ResourceManager.loadImage(ACTOR_UNDEAD1_IMG_RSC);
 		ResourceManager.loadImage(ACTOR_PEST0_IMG_RSC);
 		ResourceManager.loadImage(ACTOR_PEST1_IMG_RSC);
-		ResourceManager.loadImage(HIT_REDNUMBERS0_IMG_RSC);
-		ResourceManager.loadImage(HIT_REDNUMBERS1_IMG_RSC);
+
 
 		player = new Player(WARRIOR);
-		hits = new ArrayList<Damage>(10);
 	}
 	
 	public static void main(String[] args) {
